@@ -143,10 +143,41 @@ const deleteCampaign = async (req, res) => {
     });
   }
 };
+const searchCampaigns = async (req, res) => {
+  try {
+    const db = client.db("crowdfunding");
+
+    const { category, title } = req.query;
+
+    const filter = {};
+
+    if (category) {
+      filter.category = category;
+    }
+
+    if (title) {
+      filter.title = {
+        $regex: title,
+        $options: "i",
+      };
+    }
+
+    const campaigns = await db.collection("campaigns").find(filter).toArray();
+
+    res.status(200).json(campaigns);
+  } catch (error) {
+    console.error("Error searching campaigns:", error);
+    res.status(500).json({
+      message: "Failed to search campaigns",
+      error: error.message,
+    });
+  }
+};
 module.exports = {
   getCampaigns,
   createCampaign,
   getCampaignById,
   updateCampaign,
   deleteCampaign,
+  searchCampaigns,
 };
