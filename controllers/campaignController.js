@@ -17,6 +17,20 @@ const getCampaigns = async (req, res) => {
 
 const createCampaign = async (req, res) => {
   try {
+    const { title, description, goal, category, image } = req.body;
+
+    if (!title || !description || !goal || !category || !image) {
+      return res.status(400).json({
+        message: "All campaign fields are required",
+      });
+    }
+
+    if (Number(goal) <= 0) {
+      return res.status(400).json({
+        message: "Goal must be greater than 0",
+      });
+    }
+
     const db = client.db("crowdfunding");
 
     const campaign = {
