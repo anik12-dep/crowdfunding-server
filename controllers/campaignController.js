@@ -212,6 +212,52 @@ const searchCampaigns = async (req, res) => {
     });
   }
 };
+const donateToCampaign = async (req, res) => {
+  try {
+    const { ObjectId } = require("mongodb");
+    const db = client.db("crowdfunding");
+
+    const { id } = req.params;
+    const { amount } = req.body;
+
+    const donationAmount = Number(amount);
+
+    if (!donationAmount || donationAmount <= 0) {
+      return res.status(400).json({
+        message: "Donation amount must be greater than 0",
+      });
+    }
+
+    const result = await db.collection("campaigns").updateOne(
+      { _id: new ObjectId(id) },
+      {
+        $inc: { raised: donationAmount },
+      },
+    );
+
+    if (result.matchedCount === 0) {
+      return res.status(404).json({
+        message: "Campaign not found",
+      });
+    }
+
+    const updatedCampaign = await db.collection("campaigns").findOne({
+      _id: new ObjectId(id),
+    });
+
+    res.status(200).json({
+      message: "Donation successful",
+      campaign: updatedCampaign,
+    });
+  } catch (error) {
+    console.error("Error processing donation:", error);
+
+    res.status(500).json({
+      message: "Failed to process donation",
+      error: error.message,
+    });
+  }
+};
 module.exports = {
   getCampaigns,
   createCampaign,
@@ -219,4 +265,5 @@ module.exports = {
   updateCampaign,
   deleteCampaign,
   searchCampaigns,
+  donateToCampaign,
 };
