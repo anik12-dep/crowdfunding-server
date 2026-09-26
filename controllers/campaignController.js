@@ -4,7 +4,11 @@ const getCampaigns = async (req, res) => {
   try {
     const db = client.db("crowdfunding");
 
-    const { category, sort } = req.query;
+    const { category, sort, page = 1, limit = 5 } = req.query;
+
+    const currentPage = Number(page);
+    const itemsPerPage = Number(limit);
+    const skip = (currentPage - 1) * itemsPerPage;
 
     const filter = {};
 
@@ -26,9 +30,21 @@ const getCampaigns = async (req, res) => {
       .collection("campaigns")
       .find(filter)
       .sort(sortOption)
+      .skip(skip)
+      .limit(itemsPerPage)
       .toArray();
 
-    res.status(200).json(campaigns);
+    const totalCampaigns = await db
+      .collection("campaigns")
+      .countDocuments(filter);
+
+    res.status(200).json({
+      currentPage,
+      itemsPerPage,
+      totalCampaigns,
+      totalPages: Math.ceil(totalCampaigns / itemsPerPage),
+      campaigns,
+    });
   } catch (error) {
     console.error("Error fetching campaigns:", error);
     res.status(500).json({
