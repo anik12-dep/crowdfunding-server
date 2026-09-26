@@ -3,7 +3,30 @@ const { client } = require("../config/db");
 const getCampaigns = async (req, res) => {
   try {
     const db = client.db("crowdfunding");
-    const campaigns = await db.collection("campaigns").find().toArray();
+
+    const { category, sort } = req.query;
+
+    const filter = {};
+
+    if (category) {
+      filter.category = category;
+    }
+
+    let sortOption = {};
+
+    if (sort === "goal") {
+      sortOption = { goal: 1 };
+    }
+
+    if (sort === "goal_desc") {
+      sortOption = { goal: -1 };
+    }
+
+    const campaigns = await db
+      .collection("campaigns")
+      .find(filter)
+      .sort(sortOption)
+      .toArray();
 
     res.status(200).json(campaigns);
   } catch (error) {
