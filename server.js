@@ -3,11 +3,14 @@ const cors = require("cors");
 require("dotenv").config();
 
 const { connectToMongoDB } = require("./config/db");
+const campaignRoutes = require("./routes/campaignRoutes");
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
+
+app.use("/api/campaigns", campaignRoutes);
 
 app.get("/", (req, res) => {
   res.send("Crowdfunding Server is Running");
