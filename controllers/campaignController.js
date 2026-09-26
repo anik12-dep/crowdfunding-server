@@ -66,7 +66,7 @@ const getCampaignById = async (req, res) => {
       message: "Failed to fetch campaign",
       error: error.message,
     });
-  } 
+  }
 };
 
 const updateCampaign = async (req, res) => {
@@ -103,9 +103,36 @@ const updateCampaign = async (req, res) => {
     });
   }
 };
+const deleteCampaign = async (req, res) => {
+  try {
+    const db = client.db("crowdfunding");
+    const { ObjectId } = require("mongodb");
+
+    const result = await db.collection("campaigns").deleteOne({
+      _id: new ObjectId(req.params.id),
+    });
+
+    if (result.deletedCount === 0) {
+      return res.status(404).json({
+        message: "Campaign not found",
+      });
+    }
+
+    res.status(200).json({
+      message: "Campaign deleted successfully",
+    });
+  } catch (error) {
+    console.error("Error deleting campaign:", error);
+    res.status(500).json({
+      message: "Failed to delete campaign",
+      error: error.message,
+    });
+  }
+};
 module.exports = {
   getCampaigns,
   createCampaign,
   getCampaignById,
   updateCampaign,
+  deleteCampaign,
 };
