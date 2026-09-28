@@ -258,6 +258,42 @@ const donateToCampaign = async (req, res) => {
     });
   }
 };
+const getCampaignProgress = async (req, res) => {
+  try {
+    const db = client.db("crowdfunding");
+    const { ObjectId } = require("mongodb");
+
+    const campaign = await db.collection("campaigns").findOne({
+      _id: new ObjectId(req.params.id),
+    });
+
+    if (!campaign) {
+      return res.status(404).json({
+        message: "Campaign not found",
+      });
+    }
+
+    const goal = Number(campaign.goal);
+    const raised = Number(campaign.raised);
+
+    const progress = goal > 0 ? Math.min((raised / goal) * 100, 100) : 0;
+
+    res.status(200).json({
+      campaignId: campaign._id,
+      title: campaign.title,
+      goal,
+      raised,
+      progress: Number(progress.toFixed(2)),
+    });
+  } catch (error) {
+    console.error("Error getting campaign progress:", error);
+
+    res.status(500).json({
+      message: "Failed to get campaign progress",
+      error: error.message,
+    });
+  }
+};
 module.exports = {
   getCampaigns,
   createCampaign,
@@ -266,4 +302,5 @@ module.exports = {
   deleteCampaign,
   searchCampaigns,
   donateToCampaign,
+  getCampaignProgress,
 };

@@ -8,6 +8,7 @@ const {
   deleteCampaign,
   searchCampaigns,
   donateToCampaign,
+  getCampaignProgress,
 } = require("../controllers/campaignController");
 
 const router = express.Router();
@@ -16,6 +17,7 @@ router.get("/", getCampaigns);
 router.get("/search", searchCampaigns);
 router.post("/", createCampaign);
 router.post("/:id/donate", donateToCampaign);
+router.get("/:id/progress", getCampaignProgress);
 router.put("/:id", updateCampaign);
 router.delete("/:id", deleteCampaign);
 router.get("/:id", getCampaignById);
