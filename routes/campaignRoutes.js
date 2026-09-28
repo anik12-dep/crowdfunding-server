@@ -10,6 +10,7 @@ const {
   donateToCampaign,
   getCampaignProgress,
   getCampaignStats,
+  getCategoryStats,
 } = require("../controllers/campaignController");
 
 const router = express.Router();
@@ -23,6 +24,8 @@ router.post("/", createCampaign);
 router.post("/:id/donate", donateToCampaign);
 
 router.get("/stats", getCampaignStats);
+
+router.get("/category-stats", getCategoryStats);
 
 router.get("/:id/progress", getCampaignProgress);
 

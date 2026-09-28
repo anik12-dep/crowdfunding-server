@@ -337,6 +337,46 @@ const getCampaignStats = async (req, res) => {
     });
   }
 };
+const getCategoryStats = async (req, res) => {
+  try {
+    const db = client.db("crowdfunding");
+
+    const stats = await db
+      .collection("campaigns")
+      .aggregate([
+        {
+          $group: {
+            _id: "$category",
+            totalCampaigns: { $sum: 1 },
+            totalGoal: { $sum: "$goal" },
+            totalRaised: { $sum: "$raised" },
+          },
+        },
+        {
+          $sort: {
+            totalCampaigns: -1,
+          },
+        },
+      ])
+      .toArray();
+
+    const categoryStats = stats.map((item) => ({
+      category: item._id,
+      totalCampaigns: item.totalCampaigns,
+      totalGoal: item.totalGoal,
+      totalRaised: item.totalRaised,
+    }));
+
+    res.status(200).json(categoryStats);
+  } catch (error) {
+    console.error("Error getting category statistics:", error);
+
+    res.status(500).json({
+      message: "Failed to get category statistics",
+      error: error.message,
+    });
+  }
+};
 module.exports = {
   getCampaigns,
   createCampaign,
@@ -347,4 +387,5 @@ module.exports = {
   donateToCampaign,
   getCampaignProgress,
   getCampaignStats,
+  getCategoryStats,
 };
