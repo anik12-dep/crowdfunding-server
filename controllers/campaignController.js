@@ -294,6 +294,49 @@ const getCampaignProgress = async (req, res) => {
     });
   }
 };
+const getCampaignStats = async (req, res) => {
+  try {
+    const db = client.db("crowdfunding");
+
+    const stats = await db
+      .collection("campaigns")
+      .aggregate([
+        {
+          $group: {
+            _id: null,
+            totalCampaigns: { $sum: 1 },
+            totalGoal: { $sum: "$goal" },
+            totalRaised: { $sum: "$raised" },
+            averageGoal: { $avg: "$goal" },
+          },
+        },
+      ])
+      .toArray();
+
+    if (stats.length === 0) {
+      return res.status(200).json({
+        totalCampaigns: 0,
+        totalGoal: 0,
+        totalRaised: 0,
+        averageGoal: 0,
+      });
+    }
+
+    res.status(200).json({
+      totalCampaigns: stats[0].totalCampaigns,
+      totalGoal: stats[0].totalGoal,
+      totalRaised: stats[0].totalRaised,
+      averageGoal: Number(stats[0].averageGoal.toFixed(2)),
+    });
+  } catch (error) {
+    console.error("Error getting campaign stats:", error);
+
+    res.status(500).json({
+      message: "Failed to get campaign statistics",
+      error: error.message,
+    });
+  }
+};
 module.exports = {
   getCampaigns,
   createCampaign,
@@ -303,4 +346,5 @@ module.exports = {
   searchCampaigns,
   donateToCampaign,
   getCampaignProgress,
+  getCampaignStats,
 };

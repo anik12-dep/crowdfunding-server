@@ -9,17 +9,27 @@ const {
   searchCampaigns,
   donateToCampaign,
   getCampaignProgress,
+  getCampaignStats,
 } = require("../controllers/campaignController");
 
 const router = express.Router();
 
 router.get("/", getCampaigns);
+
 router.get("/search", searchCampaigns);
+
 router.post("/", createCampaign);
+
 router.post("/:id/donate", donateToCampaign);
+
+router.get("/stats", getCampaignStats);
+
 router.get("/:id/progress", getCampaignProgress);
+
 router.put("/:id", updateCampaign);
+
 router.delete("/:id", deleteCampaign);
+
 router.get("/:id", getCampaignById);
 
 module.exports = router;
